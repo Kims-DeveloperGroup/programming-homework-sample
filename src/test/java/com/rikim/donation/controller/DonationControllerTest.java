@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -103,5 +104,27 @@ public class DonationControllerTest {
 
         // Then
         result.andDo(print()).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void bidForDonation_whenSuccessfullyDividendIsGranted_thenReturning200WithDividendAmount() throws Exception {
+        // Given
+        int userId = 1001;
+        String roomId = "test-room-id";
+        String donationIdToBid = "TOK";
+
+        long expectedAmountGranted = 100L;
+        when(donationGenerator.grantDividend(donationIdToBid, userId, roomId))
+        .thenReturn(expectedAmountGranted);
+
+        // When
+        MockHttpServletRequestBuilder request =
+                put("/donations/" + donationIdToBid)
+                        .header("X-USER-ID", userId).header("X-ROOM-ID", roomId);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(containsString(String.valueOf(expectedAmountGranted))));
     }
 }

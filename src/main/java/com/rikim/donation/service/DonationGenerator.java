@@ -21,4 +21,8 @@ public class DonationGenerator {
         accountService.withdraw(userId, amountToDonate);
         return donationRepository.insertDonation(donation);
     }
+
+    public long grantDividend(String donationId, long userId, String roomId) {
+        return 0;
+    }
 }

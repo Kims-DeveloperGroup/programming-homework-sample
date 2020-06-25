@@ -28,4 +28,11 @@ public class DonationController {
         Donation donation = donationGenerator.generateDonation(userId, roomId, requestBody.getAmount(), requestBody.getDividendCount());
         return donation.getId();
     }
+
+    @PutMapping(path = "/donations/{donationId}")
+    @ResponseStatus(HttpStatus.OK)
+    public long bidForDonation(@RequestHeader("X-USER-ID") long userId,
+                               @RequestHeader("X-ROOM-ID") String roomId, @PathVariable String donationId) {
+        return donationGenerator.grantDividend(donationId, userId, roomId);
+    }
 }
