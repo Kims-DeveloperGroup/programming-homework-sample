@@ -5,5 +5,5 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class Account {
     long userId;
-    long amount;
+    long balance;
 }
