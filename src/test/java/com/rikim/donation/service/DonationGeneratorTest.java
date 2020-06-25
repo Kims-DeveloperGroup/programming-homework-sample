@@ -3,6 +3,7 @@ package com.rikim.donation.service;
 import com.rikim.donation.entity.Account;
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
+import com.rikim.donation.exception.InvalidDonationGrantException;
 import com.rikim.donation.repository.DonationRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,7 +114,7 @@ public class DonationGeneratorTest {
 
         Donation donation = new Donation(1L, roomId, amountToDonate, 1);
 
-        mockAllMethodsInGrantDividend(userId, roomId, donationId, donation, expectedDividendAmount);
+        mockAllMethodsInGrantDividend(userId, roomId, donationId, donation, expectedDividendAmount, false);
         // When
         long actualDividendAmount = donationGenerator.grantDividend(donationId, userId, roomId);
 
@@ -122,28 +123,68 @@ public class DonationGeneratorTest {
         assertThat(actualDividendAmount).isEqualTo(expectedDividendAmount);
     }
 
-    private void mockAllMethodsInGrantDividend(long userId, String roomId, String donationId, Donation donation, long dividendAmount) {
+    @Test(expected = InvalidDonationGrantException.class)
+    public void whenGrantDividend_whenGratingUserOwnDividend_thenExceptionShouldBeThrown() throws Exception {
+        // Given
+        String donationId = "donation-id";
+        long doneeId = 1001;
+        String roomId = "x-room-id-1";
+        long amountToDonate = 100;
+        int expectedDividendAmount = 100;
+
+        Donation userOwnDonation = new Donation(doneeId, roomId, amountToDonate, 1);
+
+        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, userOwnDonation, expectedDividendAmount, false);
+        // When
+        long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
+
+        // Then
+        verify(accountService, times(1)).deposit(doneeId, amountToDonate);
+        assertThat(actualDividendAmount).isEqualTo(expectedDividendAmount);
+    }
+
+    @Test(expected = InvalidDonationGrantException.class)
+    public void whenGrantDividend_whenUserHasAlreadyTakenTheDonation_thenExceptionShouldBeThrown() throws Exception {
+        // Given
+        boolean hasTakenDonation = true;
+        String donationId = "donation-id";
+        long doneeId = 1001;
+        String roomId = "x-room-id-1";
+        long amountToDonate = 100;
+        int expectedDividendAmount = 100;
+
+        Donation donation = new Donation(999, roomId, amountToDonate, 1);
+
+        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, hasTakenDonation);
+        // When
+        long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
+
+        // Then
+        verify(accountService, times(1)).deposit(doneeId, amountToDonate);
+        assertThat(actualDividendAmount).isEqualTo(expectedDividendAmount);
+    }
+
+    private void mockAllMethodsInGrantDividend(long doneeId, String roomId, String donationId, Donation donation, long dividendAmount, boolean donationTaken) {
         when(donationRepository.findDonation(donationId, roomId))
                 .thenReturn(donation);
 
-        when(donationRepository.findDividend(donationId, userId))
+        when(donationRepository.findDividend(donationId, doneeId))
                 .thenAnswer(new Answer<>() {
                     int count = 0;
                     @Override
                     public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                        Dividend grantedDividend = new Dividend(dividendAmount);
+                        grantedDividend.setDoneeUserId(doneeId);
 
                         if (count == 0) {
                             count++;
-                            return null;
+                            return donationTaken ? grantedDividend : null;
                         }
-
-                        Dividend grantedDividend = new Dividend(dividendAmount);
-                        grantedDividend.setDoneeUserId(userId);
                         return grantedDividend;
                     }
                 });
 
-        when(donationRepository.updateDividendDoneeId(donationId, userId))
+        when(donationRepository.updateDividendDoneeId(donationId, doneeId))
                 .thenReturn(true);
 
     }

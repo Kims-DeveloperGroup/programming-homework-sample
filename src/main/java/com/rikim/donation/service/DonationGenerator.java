@@ -3,8 +3,7 @@ package com.rikim.donation.service;
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
 import com.rikim.donation.exception.DonationUpdateException;
-import com.rikim.donation.exception.DuplicateGrantNotAllowedException;
-import com.rikim.donation.exception.NoDonationFoundException;
+import com.rikim.donation.exception.InvalidDonationGrantException;
 import com.rikim.donation.repository.DonationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,20 +25,20 @@ public class DonationGenerator {
         return donationRepository.insertDonation(donation);
     }
 
-    public long grantDividend(String donationId, long userId, String roomId) throws Exception {
+    public long grantDividend(String donationId, long userId, String roomId) throws InvalidDonationGrantException, DonationUpdateException {
         Donation donation = donationRepository.findDonation(donationId, roomId);
         if (donation == null) {
             log.error("Donation({}) does not exist in the room({})", donationId, roomId);
-            throw new NoDonationFoundException();
+            throw new InvalidDonationGrantException("NoDonationInTheRoom");
         } else if (donation.getUserId() == userId) {
             log.warn("Users are not allowed to access their own donations.");
-            throw new Exception();
+            throw new InvalidDonationGrantException("UserOwnDonationNotAllowed");
         }
 
         Dividend grantedDividend = donationRepository.findDividend(donationId, userId);
         if (grantedDividend != null) {
             log.warn("{} already has taken {}", userId, donationId);
-            throw new DuplicateGrantNotAllowedException();
+            throw new InvalidDonationGrantException("DuplicateGrantNotAllowed");
         }
 
         boolean isUpdated = donationRepository.updateDividendDoneeId(donationId, userId);
