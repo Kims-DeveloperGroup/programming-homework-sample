@@ -1,6 +1,7 @@
 package com.rikim.donation.service;
 
 import com.rikim.donation.entity.Account;
+import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
 import com.rikim.donation.exception.AccountNotFoundException;
 import com.rikim.donation.exception.NotEnoughBalanceException;
@@ -39,6 +40,8 @@ public class MoneyDonationGeneratorTest {
         String roomId = "x-room-id-1";
         long amountToDonate = 100;
         int dividendCount = 5;
+        Account enoughBalanceAccount = new Account(userId, amountToDonate);
+        when(accountService.findAccount(userId)).thenReturn(enoughBalanceAccount);
 
         // When
         Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
@@ -62,5 +65,38 @@ public class MoneyDonationGeneratorTest {
 
         // Then
         fail("Exception is expected");
+    }
+
+    @Test
+    public void whenUserGeneratesDonation_thenDividendsShouldBeGeneratedAsManyAsGivenDividendCount() throws NotEnoughBalanceException, AccountNotFoundException {
+        // Given
+        long userId = 1001;
+        String roomId = "x-room-id-1";
+        long amountToDonate = 100;
+        int dividendCount = 5;
+        Account enoughBalanceAccount = new Account(userId, amountToDonate);
+        when(accountService.findAccount(userId)).thenReturn(enoughBalanceAccount);
+        // When
+        Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+
+        // Then
+        assertThat(generated.getDividends()).hasSize(dividendCount);
+    }
+
+    @Test
+    public void whenUserGeneratesDonation_thenTotalSumOfDividendsAmountShouldBeEqualToAmountOfDonation() throws NotEnoughBalanceException, AccountNotFoundException {
+        // Given
+        long userId = 1001;
+        String roomId = "x-room-id-1";
+        long amountToDonate = 100;
+        int dividendCount = 5;
+        Account enoughBalanceAccount = new Account(userId, amountToDonate);
+        when(accountService.findAccount(userId)).thenReturn(enoughBalanceAccount);
+        // When
+        Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+
+        // Then
+        long sumOfDividendsAmount = generated.getDividends().stream().mapToLong(Dividend::getAmount).sum();
+        assertThat(sumOfDividendsAmount).isEqualTo(amountToDonate);
     }
 }

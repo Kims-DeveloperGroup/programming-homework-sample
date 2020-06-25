@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Data
 public class Donation {
@@ -21,6 +22,24 @@ public class Donation {
         this.userId = userId;
         this.roomId = roomId;
         this.amount = amount;
-        dividends = new ArrayList<>(dividendCount);
+
+        dividends = distributeDividends(dividendCount);
+    }
+
+    private List<Dividend> distributeDividends(int dividendCount) {
+        List<Dividend> dividends = new ArrayList<>(dividendCount);
+        long remaining = amount;
+        Random random = new Random();
+
+        for (int i = 0; i < dividendCount; i++) {
+            long dividendAmount = (long) (remaining * random.nextFloat());
+            remaining -= dividendAmount;
+            dividends.add(new Dividend(dividendAmount));
+        }
+        if (remaining > 0) {
+            Dividend dividend = dividends.get(random.nextInt(dividends.size() - 1));
+            dividend.setAmount(dividend.getAmount() + remaining);
+        }
+        return dividends;
     }
 }
