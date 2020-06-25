@@ -2,6 +2,8 @@ package com.rikim.donation.controller;
 
 import com.rikim.donation.controller.requestbody.DonationGenerationRequestBody;
 import com.rikim.donation.entity.Donation;
+import com.rikim.donation.exception.DonationUpdateException;
+import com.rikim.donation.exception.InvalidDonationGrantException;
 import com.rikim.donation.service.DonationGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,7 +34,7 @@ public class DonationController {
     @PutMapping(path = "/donations/{donationId}")
     @ResponseStatus(HttpStatus.OK)
     public long bidForDonation(@RequestHeader("X-USER-ID") long userId,
-                               @RequestHeader("X-ROOM-ID") String roomId, @PathVariable String donationId) {
+                               @RequestHeader("X-ROOM-ID") String roomId, @PathVariable String donationId) throws InvalidDonationGrantException, DonationUpdateException {
         return donationGenerator.grantDividend(donationId, userId, roomId);
     }
 }
