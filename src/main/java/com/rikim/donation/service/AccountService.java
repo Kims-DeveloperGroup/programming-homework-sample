@@ -21,4 +21,8 @@ public class AccountService {
         }
         return account;
     }
+
+    public Account deposit(long userId, final long amount) {
+        return null;
+    }
 }
