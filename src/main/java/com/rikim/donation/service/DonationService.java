@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class DonationGenerator {
+public class DonationService {
     private final AccountService accountService;
     private DonationRepository donationRepository;
 
-    public DonationGenerator(DonationRepository donationRepository, AccountService accountService) {
+    public DonationService(DonationRepository donationRepository, AccountService accountService) {
         this.donationRepository = donationRepository;
         this.accountService = accountService;
     }

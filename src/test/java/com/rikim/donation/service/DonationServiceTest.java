@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DonationGeneratorTest {
+public class DonationServiceTest {
     @InjectMocks
-    private DonationGenerator donationGenerator;
+    private DonationService donationService;
 
     @Mock
     private DonationRepository donationRepository;
@@ -34,7 +34,7 @@ public class DonationGeneratorTest {
 
     @Before
     public void initMoneyDonationGenerator() {
-        this.donationGenerator = new DonationGenerator(donationRepository, accountService);
+        this.donationService = new DonationService(donationRepository, accountService);
         when(donationRepository.insertDonation(any(Donation.class)))
                 .then(invocationOnMock -> invocationOnMock.getArgument(0, Donation.class));
     }
@@ -50,7 +50,7 @@ public class DonationGeneratorTest {
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
 
         // When
-        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         assertThat(generated.getRoomId()).isEqualTo(roomId);
@@ -67,7 +67,7 @@ public class DonationGeneratorTest {
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
 
         // When
-        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         assertThat(generated.getDividends()).hasSize(dividendCount);
@@ -84,7 +84,7 @@ public class DonationGeneratorTest {
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
 
         // When
-        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         long sumOfDividendsAmount = generated.getDividends().stream().mapToLong(Dividend::getAmount).sum();
@@ -101,7 +101,7 @@ public class DonationGeneratorTest {
         Account account = new Account(userId, 1000);
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
         // When
-        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         verify(accountService, times(1)).withdraw(userId, amountToDonate);
@@ -120,7 +120,7 @@ public class DonationGeneratorTest {
 
         mockAllMethodsInGrantDividend(userId, roomId, donationId, donation, expectedDividendAmount, false, false);
         // When
-        long actualDividendAmount = donationGenerator.grantDividend(donationId, userId, roomId);
+        long actualDividendAmount = donationService.grantDividend(donationId, userId, roomId);
 
         // Then
         verify(accountService, times(1)).deposit(userId, amountToDonate);
@@ -141,7 +141,7 @@ public class DonationGeneratorTest {
         mockAllMethodsInGrantDividend(doneeId, roomId, donationId, userOwnDonation, expectedDividendAmount, false, false);
 
         // When
-        donationGenerator.grantDividend(donationId, doneeId, roomId);
+        donationService.grantDividend(donationId, doneeId, roomId);
     }
 
     @Test(expected = InvalidDonationGrantException.class)
@@ -159,7 +159,7 @@ public class DonationGeneratorTest {
         mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, hasTakenDonation, false);
 
         // When
-        donationGenerator.grantDividend(donationId, doneeId, roomId);
+        donationService.grantDividend(donationId, doneeId, roomId);
     }
 
     @Test(expected = DonationUpdateException.class)
@@ -177,7 +177,7 @@ public class DonationGeneratorTest {
         mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, false, updateFail);
 
         // When
-        donationGenerator.grantDividend(donationId, doneeId, roomId);
+        donationService.grantDividend(donationId, doneeId, roomId);
 
         // Then
     }
@@ -196,7 +196,7 @@ public class DonationGeneratorTest {
         mockAllMethodsInGrantDividend(doneeId, roomId, donationId, expired, expectedDividendAmount, false, false);
 
         // When
-        donationGenerator.grantDividend(donationId, doneeId, roomId);
+        donationService.grantDividend(donationId, doneeId, roomId);
     }
 
     private void mockAllMethodsInGrantDividend(long doneeId, String roomId, String donationId, Donation donation, long dividendAmount,
