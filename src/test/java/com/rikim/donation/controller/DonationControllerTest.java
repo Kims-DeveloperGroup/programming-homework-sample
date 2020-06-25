@@ -77,4 +77,31 @@ public class DonationControllerTest {
         result.andDo(print()).andExpect(status().isCreated())
                 .andExpect(content().string(containsString(expectedDonationToken)));
     }
+
+    @Test
+    public void generateDonation_DividendCountFieldIsMssing_thenReturning400() throws Exception {
+        // Given
+        int userId = 1001;
+        String roomId = "test-room-id";
+        long amountToDonate = 1000;
+        int dividendCount = 10;
+        String expectedDonationToken = "TOK";
+
+        Donation generatedDonation = new Donation(userId, roomId, amountToDonate, dividendCount);
+        generatedDonation.setId(expectedDonationToken);
+        when(moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount))
+                .thenReturn(generatedDonation);
+
+        String bodyMissingDividndCountField = "{\"amount\": 1234}";
+
+        // When
+        MockHttpServletRequestBuilder request =
+                post("/donations")
+                        .header("X-USER-ID", userId).header("X-ROOM-ID", roomId)
+                        .contentType(MediaType.APPLICATION_JSON).content(bodyMissingDividndCountField);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isBadRequest());
+    }
 }
