@@ -3,8 +3,6 @@ package com.rikim.donation.service;
 import com.rikim.donation.entity.Account;
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
-import com.rikim.donation.exception.AccountNotFoundException;
-import com.rikim.donation.exception.NotEnoughBalanceException;
 import com.rikim.donation.repository.DonationRepository;
 import com.rikim.donation.service.repository.TestDonationRepository;
 import org.junit.Before;
@@ -33,7 +31,7 @@ public class MoneyDonationGeneratorTest {
     }
 
     @Test
-    public void whenUserGeneratesDonationForAGivenRoom_thenDonationShouldBeGeneratedWithTheGivenRoomId() throws NotEnoughBalanceException, AccountNotFoundException {
+    public void whenUserGeneratesDonationForAGivenRoom_thenDonationShouldBeGeneratedWithTheGivenRoomId() {
         // Given
         long userId = 1001;
         String roomId = "x-room-id-1";
@@ -50,7 +48,7 @@ public class MoneyDonationGeneratorTest {
     }
 
     @Test
-    public void whenUserGeneratesDonation_thenDividendsShouldBeGeneratedAsManyAsGivenDividendCount() throws NotEnoughBalanceException, AccountNotFoundException {
+    public void whenUserGeneratesDonation_thenDividendsShouldBeGeneratedAsManyAsGivenDividendCount() {
         // Given
         long userId = 1001;
         String roomId = "x-room-id-1";
@@ -67,7 +65,7 @@ public class MoneyDonationGeneratorTest {
     }
 
     @Test
-    public void whenUserGeneratesDonation_thenTotalSumOfDividendsAmountShouldBeEqualToAmountOfDonation() throws NotEnoughBalanceException, AccountNotFoundException {
+    public void whenUserGeneratesDonation_thenTotalSumOfDividendsAmountShouldBeEqualToAmountOfDonation() {
         // Given
         long userId = 1001;
         String roomId = "x-room-id-1";
@@ -85,7 +83,7 @@ public class MoneyDonationGeneratorTest {
     }
 
     @Test
-    public void whenUserGeneratesDonation_thenAccountBalanceShouldBeReducedAsMuchAsDonationAmount() throws NotEnoughBalanceException, AccountNotFoundException {
+    public void whenUserGeneratesDonation_thenAccountBalanceShouldBeReducedAsMuchAsDonationAmount() {
         // Given
         long userId = 1001;
         String roomId = "x-room-id-1";
