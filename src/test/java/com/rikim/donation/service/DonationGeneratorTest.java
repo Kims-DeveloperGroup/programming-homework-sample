@@ -3,6 +3,7 @@ package com.rikim.donation.service;
 import com.rikim.donation.entity.Account;
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
+import com.rikim.donation.exception.DonationUpdateException;
 import com.rikim.donation.exception.InvalidDonationGrantException;
 import com.rikim.donation.repository.DonationRepository;
 import org.junit.Before;
@@ -104,7 +105,7 @@ public class DonationGeneratorTest {
     }
 
     @Test
-    public void whenGrantDividend_thenDividendAmountShouldBeReturned() throws Exception {
+    public void grantDividend_thenDividendAmountShouldBeReturned() throws Exception {
         // Given
         String donationId = "donation-id";
         long userId = 1001;
@@ -114,7 +115,7 @@ public class DonationGeneratorTest {
 
         Donation donation = new Donation(1L, roomId, amountToDonate, 1);
 
-        mockAllMethodsInGrantDividend(userId, roomId, donationId, donation, expectedDividendAmount, false);
+        mockAllMethodsInGrantDividend(userId, roomId, donationId, donation, expectedDividendAmount, false, false);
         // When
         long actualDividendAmount = donationGenerator.grantDividend(donationId, userId, roomId);
 
@@ -124,7 +125,7 @@ public class DonationGeneratorTest {
     }
 
     @Test(expected = InvalidDonationGrantException.class)
-    public void whenGrantDividend_whenGratingUserOwnDividend_thenExceptionShouldBeThrown() throws Exception {
+    public void grantDividend_whenGratingUserOwnDividend_thenExceptionShouldBeThrown() throws Exception {
         // Given
         String donationId = "donation-id";
         long doneeId = 1001;
@@ -134,17 +135,15 @@ public class DonationGeneratorTest {
 
         Donation userOwnDonation = new Donation(doneeId, roomId, amountToDonate, 1);
 
-        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, userOwnDonation, expectedDividendAmount, false);
+        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, userOwnDonation, expectedDividendAmount, false, false);
         // When
         long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
 
         // Then
-        verify(accountService, times(1)).deposit(doneeId, amountToDonate);
-        assertThat(actualDividendAmount).isEqualTo(expectedDividendAmount);
     }
 
     @Test(expected = InvalidDonationGrantException.class)
-    public void whenGrantDividend_whenUserHasAlreadyTakenTheDonation_thenExceptionShouldBeThrown() throws Exception {
+    public void grantDividend_whenUserHasAlreadyTakenTheDonation_thenExceptionShouldBeThrown() throws Exception {
         // Given
         boolean hasTakenDonation = true;
         String donationId = "donation-id";
@@ -155,16 +154,34 @@ public class DonationGeneratorTest {
 
         Donation donation = new Donation(999, roomId, amountToDonate, 1);
 
-        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, hasTakenDonation);
+        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, hasTakenDonation, false);
         // When
         long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
 
         // Then
-        verify(accountService, times(1)).deposit(doneeId, amountToDonate);
-        assertThat(actualDividendAmount).isEqualTo(expectedDividendAmount);
     }
 
-    private void mockAllMethodsInGrantDividend(long doneeId, String roomId, String donationId, Donation donation, long dividendAmount, boolean donationTaken) {
+    @Test(expected = DonationUpdateException.class)
+    public void grantDividend_whenFailToUpdateDividendWithDoneeId_ThenExceptionShouldBeThrown() throws Exception {
+        // Given
+        boolean updateFail = true;
+        String donationId = "donation-id";
+        long doneeId = 1001;
+        String roomId = "x-room-id-1";
+        long amountToDonate = 100;
+        int expectedDividendAmount = 100;
+
+        Donation donation = new Donation(999, roomId, amountToDonate, 1);
+
+        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, false, updateFail);
+        // When
+        long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
+
+        // Then
+    }
+
+    private void mockAllMethodsInGrantDividend(long doneeId, String roomId, String donationId, Donation donation, long dividendAmount,
+                                               boolean donationTaken, boolean updateFail) {
         when(donationRepository.findDonation(donationId, roomId))
                 .thenReturn(donation);
 
@@ -180,7 +197,7 @@ public class DonationGeneratorTest {
                             count++;
                             return donationTaken ? grantedDividend : null;
                         }
-                        return grantedDividend;
+                        return updateFail ? null : grantedDividend;
                     }
                 });
 
