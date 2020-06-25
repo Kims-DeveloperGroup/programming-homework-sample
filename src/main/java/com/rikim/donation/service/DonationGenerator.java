@@ -30,6 +30,9 @@ public class DonationGenerator {
         if (donation == null) {
             log.error("Donation({}) does not exist in the room({})", donationId, roomId);
             throw new InvalidDonationGrantException("NoDonationInTheRoom");
+        } else if (donation.isExpired()) {
+          log.warn("Donation {} is expired", donationId);
+          throw new InvalidDonationGrantException("DonationExpired");
         } else if (donation.getUserId() == userId) {
             log.warn("Users are not allowed to access their own donations.");
             throw new InvalidDonationGrantException("UserOwnDonationNotAllowed");

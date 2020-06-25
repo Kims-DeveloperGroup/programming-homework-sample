@@ -15,6 +15,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -178,6 +181,23 @@ public class DonationGeneratorTest {
         long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
 
         // Then
+    }
+
+    @Test(expected = InvalidDonationGrantException.class)
+    public void grantDividend_whenDonationIsExpired_thenExceptionThrown() throws Exception {
+        // Given
+        String donationId = "donation-id";
+        long doneeId = 1001;
+        String roomId = "x-room-id-1";
+        long amountToDonate = 100;
+        int expectedDividendAmount = 100;
+
+        Donation expired = new Donation(999, roomId, amountToDonate, 1);
+        expired.setCreated(Instant.now().minus(10L, ChronoUnit.MINUTES));
+        mockAllMethodsInGrantDividend(doneeId, roomId, donationId, expired, expectedDividendAmount, false, false);
+
+        // When
+        donationGenerator.grantDividend(donationId, doneeId, roomId);
     }
 
     private void mockAllMethodsInGrantDividend(long doneeId, String roomId, String donationId, Donation donation, long dividendAmount,
