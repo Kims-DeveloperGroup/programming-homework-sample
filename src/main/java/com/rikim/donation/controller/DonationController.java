@@ -2,7 +2,7 @@ package com.rikim.donation.controller;
 
 import com.rikim.donation.controller.requestbody.DonationGenerationRequestBody;
 import com.rikim.donation.entity.Donation;
-import com.rikim.donation.service.MoneyDonationGenerator;
+import com.rikim.donation.service.DonationGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Slf4j
 public class DonationController {
-    private final MoneyDonationGenerator moneyDonationGenerator;
+    private final DonationGenerator donationGenerator;
 
-    public DonationController(MoneyDonationGenerator moneyDonationGenerator) {
-        this.moneyDonationGenerator = moneyDonationGenerator;
+    public DonationController(DonationGenerator donationGenerator) {
+        this.donationGenerator = donationGenerator;
     }
 
     @PostMapping(path = "/donations", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -25,7 +25,7 @@ public class DonationController {
         if (requestBody.getAmount() <= 0) {
             log.warn("Amount of donation should be greater than zero. userId: {}, amount: {}", userId, requestBody.getAmount());
         }
-        Donation donation = moneyDonationGenerator.generateDonation(userId, roomId, requestBody.getAmount(), requestBody.getDividendCount());
+        Donation donation = donationGenerator.generateDonation(userId, roomId, requestBody.getAmount(), requestBody.getDividendCount());
         return donation.getId();
     }
 }

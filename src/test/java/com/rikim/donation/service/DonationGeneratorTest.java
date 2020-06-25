@@ -16,9 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MoneyDonationGeneratorTest {
+public class DonationGeneratorTest {
     @InjectMocks
-    private MoneyDonationGenerator moneyDonationGenerator;
+    private DonationGenerator donationGenerator;
 
     private DonationRepository mockDonationRepository = new TestDonationRepository();
 
@@ -27,7 +27,7 @@ public class MoneyDonationGeneratorTest {
 
     @Before
     public void initMoneyDonationGenerator() {
-        this.moneyDonationGenerator = new MoneyDonationGenerator(mockDonationRepository, accountService);
+        this.donationGenerator = new DonationGenerator(mockDonationRepository, accountService);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class MoneyDonationGeneratorTest {
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
 
         // When
-        Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         assertThat(generated.getRoomId()).isEqualTo(roomId);
@@ -58,7 +58,7 @@ public class MoneyDonationGeneratorTest {
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
 
         // When
-        Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         assertThat(generated.getDividends()).hasSize(dividendCount);
@@ -75,7 +75,7 @@ public class MoneyDonationGeneratorTest {
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
 
         // When
-        Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         long sumOfDividendsAmount = generated.getDividends().stream().mapToLong(Dividend::getAmount).sum();
@@ -92,7 +92,7 @@ public class MoneyDonationGeneratorTest {
         Account account = new Account(userId, 1000);
         when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
         // When
-        Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+        Donation generated = donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         verify(accountService, times(1)).withdraw(userId, amountToDonate);

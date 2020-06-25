@@ -5,7 +5,7 @@ import com.rikim.donation.controller.requestbody.DonationGenerationRequestBody;
 import com.rikim.donation.entity.Donation;
 import com.rikim.donation.repository.DonationRepository;
 import com.rikim.donation.service.AccountService;
-import com.rikim.donation.service.MoneyDonationGenerator;
+import com.rikim.donation.service.DonationGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ public class DonationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private MoneyDonationGenerator moneyDonationGenerator;
+    private DonationGenerator donationGenerator;
 
     @MockBean
     private AccountService accountService;
@@ -61,7 +61,7 @@ public class DonationControllerTest {
 
         Donation generatedDonation = new Donation(userId, roomId, amountToDonate, dividendCount);
         generatedDonation.setId(expectedDonationToken);
-        when(moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount))
+        when(donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount))
                 .thenReturn(generatedDonation);
 
         String body = objectMapper.writeValueAsString(new DonationGenerationRequestBody(amountToDonate, dividendCount));
@@ -89,7 +89,7 @@ public class DonationControllerTest {
 
         Donation generatedDonation = new Donation(userId, roomId, amountToDonate, dividendCount);
         generatedDonation.setId(expectedDonationToken);
-        when(moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount))
+        when(donationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount))
                 .thenReturn(generatedDonation);
 
         String bodyMissingDividndCountField = "{\"amount\": 1234}";

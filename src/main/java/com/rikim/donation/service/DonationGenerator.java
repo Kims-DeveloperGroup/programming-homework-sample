@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class MoneyDonationGenerator {
+public class DonationGenerator {
     private final AccountService accountService;
     private DonationRepository donationRepository;
 
-    public MoneyDonationGenerator(DonationRepository donationRepository, AccountService accountService) {
+    public DonationGenerator(DonationRepository donationRepository, AccountService accountService) {
         this.donationRepository = donationRepository;
         this.accountService = accountService;
     }
