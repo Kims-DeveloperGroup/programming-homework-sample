@@ -4,12 +4,15 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 @Data
 public class Donation {
+    private final int validTimeDuration = 10;
     @Id
     @Indexed(unique = true)
     String id;
@@ -17,6 +20,7 @@ public class Donation {
     final String roomId;
     final long amount;
     final List<Dividend> dividends;
+    Instant created;
 
     public Donation(long userId, String roomId, long amount, int dividendCount) {
         this.userId = userId;
@@ -24,6 +28,11 @@ public class Donation {
         this.amount = amount;
         generateId();
         dividends = distributeDividends(dividendCount);
+        created = Instant.now();
+    }
+
+    public boolean isExpired() {
+        return created.plus(validTimeDuration, ChronoUnit.MINUTES).isBefore(Instant.now());
     }
 
     private List<Dividend> distributeDividends(int dividendCount) {
