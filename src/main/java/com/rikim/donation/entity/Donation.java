@@ -22,7 +22,7 @@ public class Donation {
         this.userId = userId;
         this.roomId = roomId;
         this.amount = amount;
-
+        generateId();
         dividends = distributeDividends(dividendCount);
     }
 
@@ -37,9 +37,20 @@ public class Donation {
             dividends.add(new Dividend(dividendAmount));
         }
         if (remaining > 0) {
-            Dividend dividend = dividends.get(random.nextInt(dividends.size() - 1));
+            Dividend dividend = dividends.get(random.nextInt(dividends.size()));
             dividend.setAmount(dividend.getAmount() + remaining);
         }
         return dividends;
+    }
+
+    private void generateId() {
+        Random random = new Random();
+        StringBuilder idBuilder = new StringBuilder();
+        while (idBuilder.length() < 3) {
+            int asciiCode = random.nextInt(Character.MAX_VALUE);
+            char ch = (char) asciiCode;
+            idBuilder.append(ch);
+        }
+        this.id = idBuilder.toString();
     }
 }
