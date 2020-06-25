@@ -139,10 +139,9 @@ public class DonationGeneratorTest {
         Donation userOwnDonation = new Donation(doneeId, roomId, amountToDonate, 1);
 
         mockAllMethodsInGrantDividend(doneeId, roomId, donationId, userOwnDonation, expectedDividendAmount, false, false);
-        // When
-        long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
 
-        // Then
+        // When
+        donationGenerator.grantDividend(donationId, doneeId, roomId);
     }
 
     @Test(expected = InvalidDonationGrantException.class)
@@ -158,10 +157,9 @@ public class DonationGeneratorTest {
         Donation donation = new Donation(999, roomId, amountToDonate, 1);
 
         mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, hasTakenDonation, false);
-        // When
-        long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
 
-        // Then
+        // When
+        donationGenerator.grantDividend(donationId, doneeId, roomId);
     }
 
     @Test(expected = DonationUpdateException.class)
@@ -177,8 +175,9 @@ public class DonationGeneratorTest {
         Donation donation = new Donation(999, roomId, amountToDonate, 1);
 
         mockAllMethodsInGrantDividend(doneeId, roomId, donationId, donation, expectedDividendAmount, false, updateFail);
+
         // When
-        long actualDividendAmount = donationGenerator.grantDividend(donationId, doneeId, roomId);
+        donationGenerator.grantDividend(donationId, doneeId, roomId);
 
         // Then
     }
