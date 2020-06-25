@@ -15,8 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MoneyDonationGeneratorTest {
@@ -40,31 +39,14 @@ public class MoneyDonationGeneratorTest {
         String roomId = "x-room-id-1";
         long amountToDonate = 100;
         int dividendCount = 5;
-        Account enoughBalanceAccount = new Account(userId, amountToDonate);
-        when(accountService.findAccount(userId)).thenReturn(enoughBalanceAccount);
+        Account account = new Account(userId, 1000);
+        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
 
         // When
         Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         assertThat(generated.getRoomId()).isEqualTo(roomId);
-    }
-
-    @Test(expected = NotEnoughBalanceException.class)
-    public void whenDonationAmountExceedsTheAmountInTheAccount_thenExceptionShouldBeThrownAndDonationShouldBeGenerated() throws AccountNotFoundException, NotEnoughBalanceException {
-        // Given
-        long userId = 1001;
-        String roomId = "x-room-id-1";
-        long amountToDonate = 100;
-        int dividendCount = 5;
-        Account zeroBalanceAccount = new Account(userId, 0);
-        when(accountService.findAccount(userId)).thenReturn(zeroBalanceAccount);
-
-        // When
-        moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
-
-        // Then
-        fail("Exception is expected");
     }
 
     @Test
@@ -74,8 +56,9 @@ public class MoneyDonationGeneratorTest {
         String roomId = "x-room-id-1";
         long amountToDonate = 100;
         int dividendCount = 5;
-        Account enoughBalanceAccount = new Account(userId, amountToDonate);
-        when(accountService.findAccount(userId)).thenReturn(enoughBalanceAccount);
+        Account account = new Account(userId, 1000);
+        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
+
         // When
         Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
@@ -90,13 +73,30 @@ public class MoneyDonationGeneratorTest {
         String roomId = "x-room-id-1";
         long amountToDonate = 100;
         int dividendCount = 5;
-        Account enoughBalanceAccount = new Account(userId, amountToDonate);
-        when(accountService.findAccount(userId)).thenReturn(enoughBalanceAccount);
+        Account account = new Account(userId, 1000);
+        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
+
         // When
         Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
 
         // Then
         long sumOfDividendsAmount = generated.getDividends().stream().mapToLong(Dividend::getAmount).sum();
         assertThat(sumOfDividendsAmount).isEqualTo(amountToDonate);
+    }
+
+    @Test
+    public void whenUserGeneratesDonation_thenAccountBalanceShouldBeReducedAsMuchAsDonationAmount() throws NotEnoughBalanceException, AccountNotFoundException {
+        // Given
+        long userId = 1001;
+        String roomId = "x-room-id-1";
+        long amountToDonate = 100;
+        int dividendCount = 5;
+        Account account = new Account(userId, 1000);
+        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
+        // When
+        Donation generated = moneyDonationGenerator.generateDonation(userId, roomId, amountToDonate, dividendCount);
+
+        // Then
+        verify(accountService, times(1)).withdraw(userId, amountToDonate);
     }
 }

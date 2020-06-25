@@ -20,10 +20,7 @@ public class MoneyDonationGenerator {
 
     public Donation generateDonation(long userId, String roomId, long amountToDonate, int dividendCount) throws NotEnoughBalanceException, AccountNotFoundException {
         Donation donation = new Donation(userId, roomId, amountToDonate, dividendCount);
-        if (accountService.findAccount(userId).isBalanceUnder(amountToDonate)) {
-            log.error("{} does not have enough balance to donate {}", userId, amountToDonate);
-            throw new NotEnoughBalanceException();
-        }
+        accountService.withdraw(userId, amountToDonate);
         return donationRepository.insertDonation(donation);
     }
 }
