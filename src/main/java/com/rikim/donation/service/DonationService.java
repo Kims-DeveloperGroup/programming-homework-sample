@@ -28,7 +28,7 @@ public class DonationService {
 
     public long grantDividend(String donationId, long userId, String roomId) throws DonationGrantConditionException, DonationUpdateException {
         Donation donation = donationRepository.findDonation(donationId, roomId);
-        if (donation == null) {
+        if (donation == null || !donation.getRoomId().equals(roomId)) {
             log.error("Donation({}) does not exist in the room({})", donationId, roomId);
             throw new DonationGrantConditionException(NoDonationInTheRoom);
         } else if (donation.isExpiredForGrant()) {
