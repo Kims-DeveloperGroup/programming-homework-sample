@@ -3,6 +3,7 @@ package com.rikim.donation.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rikim.donation.controller.requestbody.DonationGenerationRequestBody;
 import com.rikim.donation.entity.Donation;
+import com.rikim.donation.exception.*;
 import com.rikim.donation.repository.DonationRepository;
 import com.rikim.donation.service.AccountService;
 import com.rikim.donation.service.DonationService;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static com.rikim.donation.exception.DonationGrantConditionExceptionType.DonationExpired;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -128,6 +130,47 @@ public class DonationControllerTest {
         result.andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(containsString(String.valueOf(expectedAmountGranted))));
     }
+
+    @Test
+    public void bidForDonation_whenDonationGrantConditionExceptionIsThrown_thenStatusShouldBe409() throws Exception {
+        // Given
+        int userId = 1001;
+        String roomId = "test-room-id";
+        String donationIdToBid = "TOK";
+
+        when(donationService.grantDividend(donationIdToBid, userId, roomId))
+                .thenThrow(new DonationGrantConditionException(DonationExpired));
+
+        // When
+        MockHttpServletRequestBuilder request =
+                put("/donations/" + donationIdToBid)
+                        .header("X-USER-ID", userId).header("X-ROOM-ID", roomId);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isConflict());
+    }
+
+    @Test
+    public void bidForDonation_whenDonationUpdateExceptionIsThrown_thenStatusShouldBe500() throws Exception {
+        // Given
+        int userId = 1001;
+        String roomId = "test-room-id";
+        String donationIdToBid = "TOK";
+
+        when(donationService.grantDividend(donationIdToBid, userId, roomId))
+                .thenThrow(new DonationUpdateException());
+
+        // When
+        MockHttpServletRequestBuilder request =
+                put("/donations/" + donationIdToBid)
+                        .header("X-USER-ID", userId).header("X-ROOM-ID", roomId);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isInternalServerError());
+    }
+
     @Test
     public void findUserDonation_whenSuccessfullyDonationForGivenDonationIsFound_thenDonationShouldBeReturned() throws Exception {
         // Given
@@ -149,5 +192,71 @@ public class DonationControllerTest {
         // Then
         result.andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(containsString(donationIdToFind)));
+    }
+
+    @Test
+    public void findUserDonation_ResourceExpiredExceptionIsThrown_thenStatusShouldBe410() throws Exception {
+        // Given
+        int userId = 1001;
+        String donationIdToFind = "TOK";
+
+        Donation donationForGivenId = new Donation(userId, "x-roomId", 1000L, 3);
+        donationForGivenId.setId(donationIdToFind);
+        when(donationService.findDonation(userId, donationIdToFind))
+                .thenThrow(new ResourceExpiredException(""));
+
+        // When
+        MockHttpServletRequestBuilder request =
+                MockMvcRequestBuilders.get("/donations/" + donationIdToFind)
+                        .header("X-USER-ID", userId)
+                        .accept(MediaType.APPLICATION_JSON);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isGone());
+    }
+
+    @Test
+    public void findUserDonation_PermissionIsNotAllowedIsThrown_thenStatusShouldBe403() throws Exception {
+        // Given
+        int userId = 1001;
+        String donationIdToFind = "TOK";
+
+        Donation donationForGivenId = new Donation(userId, "x-roomId", 1000L, 3);
+        donationForGivenId.setId(donationIdToFind);
+        when(donationService.findDonation(userId, donationIdToFind))
+                .thenThrow(new PermissionNotAllowedAccess(""));
+
+        // When
+        MockHttpServletRequestBuilder request =
+                MockMvcRequestBuilders.get("/donations/" + donationIdToFind)
+                        .header("X-USER-ID", userId)
+                        .accept(MediaType.APPLICATION_JSON);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void findUserDonation_ResourceNotFoundExceptionIsThrown_thenStatusShouldBe404() throws Exception {
+        // Given
+        int userId = 1001;
+        String donationIdToFind = "TOK";
+
+        Donation donationForGivenId = new Donation(userId, "x-roomId", 1000L, 3);
+        donationForGivenId.setId(donationIdToFind);
+        when(donationService.findDonation(userId, donationIdToFind))
+                .thenThrow(new ResoureceNotFoundException(""));
+
+        // When
+        MockHttpServletRequestBuilder request =
+                MockMvcRequestBuilders.get("/donations/" + donationIdToFind)
+                        .header("X-USER-ID", userId)
+                        .accept(MediaType.APPLICATION_JSON);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isNotFound());
     }
 }
