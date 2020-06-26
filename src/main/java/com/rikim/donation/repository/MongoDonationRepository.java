@@ -40,8 +40,11 @@ public class MongoDonationRepository implements DonationRepository {
                         )
                 );
         Donation donation = mongoTemplate.findOne(grantedForGivenDoneeId, Donation.class);
+        if (donation == null) {
+            return null;
+        }
         return donation.getDividends().stream()
-                .filter(dividend -> dividend.getDoneeUserId() == doneeId).findFirst().get();
+                .filter(dividend -> dividend.getDoneeUserId() == doneeId).findFirst().orElse(null);
     }
 
     @Override
