@@ -2,8 +2,7 @@ package com.rikim.donation.controller;
 
 import com.rikim.donation.controller.requestbody.DonationGenerationRequestBody;
 import com.rikim.donation.entity.Donation;
-import com.rikim.donation.exception.DonationGrantConditionException;
-import com.rikim.donation.exception.DonationUpdateException;
+import com.rikim.donation.exception.*;
 import com.rikim.donation.service.DonationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,5 +35,12 @@ public class DonationController {
     public long bidForDonation(@RequestHeader("X-USER-ID") long userId,
                                @RequestHeader("X-ROOM-ID") String roomId, @PathVariable String donationId) throws DonationGrantConditionException, DonationUpdateException {
         return donationService.grantDividend(donationId, userId, roomId);
+    }
+
+    @GetMapping(path = "/donations/{donationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public Donation findUserDonation(@RequestHeader("X-USER-ID") long userId,
+                                 @PathVariable String donationId) throws ResoureceNotFoundException, ResourceExpiredException, PermissionNotAllowedAccess {
+        return donationService.findDonation(userId, donationId);
     }
 }

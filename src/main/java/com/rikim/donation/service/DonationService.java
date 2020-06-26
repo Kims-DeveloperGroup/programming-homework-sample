@@ -2,8 +2,7 @@ package com.rikim.donation.service;
 
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
-import com.rikim.donation.exception.DonationGrantConditionException;
-import com.rikim.donation.exception.DonationUpdateException;
+import com.rikim.donation.exception.*;
 import com.rikim.donation.repository.DonationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,7 @@ public class DonationService {
         if (donation == null) {
             log.error("Donation({}) does not exist in the room({})", donationId, roomId);
             throw new DonationGrantConditionException(NoDonationInTheRoom);
-        } else if (donation.isExpired()) {
+        } else if (donation.isExpiredForGrant()) {
           log.warn("Donation {} is expired", donationId);
           throw new DonationGrantConditionException(DonationExpired);
         } else if (donation.getUserId() == userId) {
@@ -56,5 +55,18 @@ public class DonationService {
         }
         accountService.deposit(userId, dividendGrantedForUserId.getAmount());
         return dividendGrantedForUserId.getAmount();
+    }
+
+    public Donation findDonation(long userId, String donationId) throws PermissionNotAllowedAccess, ResoureceNotFoundException, ResourceExpiredException {
+        Donation donation = donationRepository.findDonation(donationId);
+        if (donation == null) {
+            throw new ResoureceNotFoundException("Donation for a given id is not found");
+        } else if (donation.isExpiredForView()) {
+            throw new ResourceExpiredException("Donation access for view is expired");
+        } else if (donation.getUserId() != userId) {
+            throw new PermissionNotAllowedAccess("Users are permitted only to their own donations");
+        } else {
+            return donation;
+        }
     }
 }

@@ -3,8 +3,7 @@ package com.rikim.donation.service;
 import com.rikim.donation.entity.Account;
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
-import com.rikim.donation.exception.DonationGrantConditionException;
-import com.rikim.donation.exception.DonationUpdateException;
+import com.rikim.donation.exception.*;
 import com.rikim.donation.repository.DonationRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -197,6 +196,61 @@ public class DonationServiceTest {
 
         // When
         donationService.grantDividend(donationId, doneeId, roomId);
+    }
+
+    @Test
+    public void findUserOwnDonation_thenReturningTheDonationForAGivenDonationId() throws Exception {
+        // Given
+        long userId = 1001;
+        String donationId = "donation-token";
+        Donation donationForGivenDonationId = new Donation(userId, "roomId", 100, 2);
+        donationForGivenDonationId.setId(donationId);
+        when(donationRepository.findDonation(donationId)).thenReturn(donationForGivenDonationId);
+
+        // When
+        Donation result = donationService.findDonation(userId, donationId);
+
+        // Then
+        assertThat(result.getId()).isEqualTo(donationId);
+    }
+
+    @Test(expected = PermissionNotAllowedAccess.class)
+    public void findUserOwnDonation_whenDonationHasDifferentUserId_thenExceptionShouldBeThrown() throws Exception {
+        // Given
+        long userId = 1001;
+        long otherUserId = 1002;
+
+        String donationId = "donation-token";
+        Donation otherUserDonation = new Donation(otherUserId, "roomId", 100, 2);
+        when(donationRepository.findDonation(donationId)).thenReturn(otherUserDonation);
+
+        // When
+        donationService.findDonation(userId, donationId);
+    }
+
+    @Test(expected = ResoureceNotFoundException.class)
+    public void findUserOwnDonation_whenDonationNotExist_thenExceptionShouldBeThrown() throws Exception {
+        // Given
+        long userId = 1001;
+        String donationId = "donation-token";
+        when(donationRepository.findDonation(donationId)).thenReturn(null);
+
+        // When
+        donationService.findDonation(userId, donationId);
+    }
+
+    @Test(expected = ResourceExpiredException.class)
+    public void findUserOwnDonation_whenDonationIsExpiredForView_thenExceptionShouldBeThrown() throws Exception {
+        // Given
+        long userId = 1001;
+        String donationId = "donation-token";
+
+        Donation expiredForView = new Donation(userId, "x-room-id", 100, 2);
+        expiredForView.setCreated(Instant.now().minus(7L, ChronoUnit.DAYS));
+        when(donationRepository.findDonation(donationId)).thenReturn(expiredForView);
+
+        // When
+        donationService.findDonation(userId, donationId);
     }
 
     private void mockAllMethodsInGrantDividend(long doneeId, String roomId, String donationId, Donation donation, long dividendAmount,

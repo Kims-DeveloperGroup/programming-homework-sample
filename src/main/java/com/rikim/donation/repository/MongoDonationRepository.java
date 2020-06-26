@@ -27,6 +27,11 @@ public class MongoDonationRepository implements DonationRepository {
     }
 
     @Override
+    public Donation findDonation(String donationId) {
+        return mongoTemplate.findOne(Query.query(new Criteria("id").is(donationId)), Donation.class);
+    }
+
+    @Override
     public Dividend findDividend(String donationId, long doneeId) {
         Query grantedForGivenDoneeId = Query.query(new Criteria("id").is(donationId))
                 .addCriteria(
