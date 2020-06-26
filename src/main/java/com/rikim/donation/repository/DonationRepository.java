@@ -7,6 +7,7 @@ public interface DonationRepository {
 
     Donation insertDonation(Donation donation);
     Donation findDonation(String donationId, String roomId);
+    Donation findDonation(String donationId);
     Dividend findDividend(String donationId, long doneeId);
     boolean updateDividendDoneeId(String donationId, long doneeId);
 }
