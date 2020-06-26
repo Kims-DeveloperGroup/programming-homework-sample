@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.when;
@@ -126,5 +127,27 @@ public class DonationControllerTest {
         // Then
         result.andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(containsString(String.valueOf(expectedAmountGranted))));
+    }
+    @Test
+    public void findUserDonation_whenSuccessfullyDonationForGivenDonationIsFound_thenDonationShouldBeReturned() throws Exception {
+        // Given
+        int userId = 1001;
+        String donationIdToFind = "TOK";
+
+        Donation donationForGivenId = new Donation(userId, "x-roomId", 1000L, 3);
+        donationForGivenId.setId(donationIdToFind);
+        when(donationService.findDonation(userId, donationIdToFind))
+                .thenReturn(donationForGivenId);
+
+        // When
+        MockHttpServletRequestBuilder request =
+                MockMvcRequestBuilders.get("/donations/" + donationIdToFind)
+                        .header("X-USER-ID", userId)
+                        .accept(MediaType.APPLICATION_JSON);
+        ResultActions result = this.mockMvc.perform(request);
+
+        // Then
+        result.andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(containsString(donationIdToFind)));
     }
 }
