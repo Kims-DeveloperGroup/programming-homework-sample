@@ -5,6 +5,7 @@ import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
 import com.rikim.donation.exception.DonationGrantConditionException;
 import com.rikim.donation.exception.DonationUpdateException;
+import com.rikim.donation.exception.PermissionNotAllowedAccess;
 import com.rikim.donation.repository.DonationRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -197,6 +198,36 @@ public class DonationServiceTest {
 
         // When
         donationService.grantDividend(donationId, doneeId, roomId);
+    }
+
+    @Test
+    public void findUserOwnDonation_thenReturningTheDonationForAGivenDonationId() throws PermissionNotAllowedAccess {
+        // Given
+        long userId = 1001;
+        String donationId = "donation-token";
+        Donation donationForGivenDonationId = new Donation(userId, "roomId", 100, 2);
+        donationForGivenDonationId.setId(donationId);
+        when(donationRepository.findDonation(donationId)).thenReturn(donationForGivenDonationId);
+
+        // When
+        Donation result = donationService.findDonation(userId, donationId);
+
+        // Then
+        assertThat(result.getId()).isEqualTo(donationId);
+    }
+
+    @Test(expected = PermissionNotAllowedAccess.class)
+    public void findUserOwnDonation_whenDonationHasDifferentUserId_thenExceptionShouldBeThrown() throws PermissionNotAllowedAccess {
+        // Given
+        long userId = 1001;
+        long otherUserId = 1002;
+
+        String donationId = "donation-token";
+        Donation otherUserDonation = new Donation(otherUserId, "roomId", 100, 2);
+        when(donationRepository.findDonation(donationId)).thenReturn(otherUserDonation);
+
+        // When
+        donationService.findDonation(userId, donationId);
     }
 
     private void mockAllMethodsInGrantDividend(long doneeId, String roomId, String donationId, Donation donation, long dividendAmount,

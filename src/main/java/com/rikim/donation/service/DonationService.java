@@ -4,6 +4,7 @@ import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
 import com.rikim.donation.exception.DonationGrantConditionException;
 import com.rikim.donation.exception.DonationUpdateException;
+import com.rikim.donation.exception.PermissionNotAllowedAccess;
 import com.rikim.donation.repository.DonationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -56,5 +57,13 @@ public class DonationService {
         }
         accountService.deposit(userId, dividendGrantedForUserId.getAmount());
         return dividendGrantedForUserId.getAmount();
+    }
+
+    public Donation findDonation(long userId, String donationId) throws PermissionNotAllowedAccess {
+        Donation donation = donationRepository.findDonation(donationId);
+        if (donation.getUserId() != userId) {
+            throw new PermissionNotAllowedAccess("Users are permitted only to their own donations");
+        }
+        return donation;
     }
 }
