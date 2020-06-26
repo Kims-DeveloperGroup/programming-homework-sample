@@ -1,6 +1,6 @@
 # Money donation application
 
-##Runbook
+## Runbook
 - prerequisite (java 11, maven, docker installation)
 
 ### Run `make` in the project base path
@@ -11,16 +11,16 @@ To run independently
 - `make runDB` runs only database
 
 
-###Tests
+### Tests
 Test cases runs in Controller and Service layers. <br/>
 Repository layer is mocked. <br/>
 Run `mvn test`
 
-##Architecture
+## Architecture
 - Three layered - Controller, Service, Repository
 
-####Controller: DonationController
-#####APIs
+#### Controller: DonationController
+##### APIs
 - GET: /donations/{donationId} <br/>
 : get a donation information <br/>
 : Response: `Donation` json
@@ -35,26 +35,26 @@ and deposit the amount of the dividend into a request user account. <br/>
 : Response: the dividend's amount to be deposited.
 
 
-####Services
-#####1) DonationService
+#### Services
+##### 1) DonationService
 DonationService is in charge of managing donations
 <br/>
-#####2) AccountService
+##### 2) AccountService
 AccountService is in charge of managing user accounts <br/>
 ######NOTE: AccountService generates an account when request users do not owns accounts with a gift $10000
 <br/>
 <br/>
 
-####Repositories
-#####1) DonationRepository
+#### Repositories
+##### 1) DonationRepository
 DonationRepository stores, updates and queries `Donation`
 <br/>
 <br/>
-#####2) AccountRepository
+##### 2) AccountRepository
 AccountRepository stores, updates and queries `Account`
 
 
-####Entities
+#### Entities
 Donation
 ```  private String id;  // donationId or token
      private long userId; // userId who generated the donation
