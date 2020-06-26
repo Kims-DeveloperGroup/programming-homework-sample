@@ -23,7 +23,7 @@ public class MongoDonationRepository implements DonationRepository {
 
     @Override
     public Donation findDonation(String donationId, String roomId) {
-        return mongoTemplate.findOne(Query.query(new Criteria("id").is(donationId)), Donation.class);
+        return mongoTemplate.findOne(Query.query(new Criteria("id").is(donationId).and("roomId").is(roomId)), Donation.class);
     }
 
     @Override
