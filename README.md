@@ -55,7 +55,7 @@ AccountRepository stores, updates and queries `Account`
 
 
 #### Entities
-Donation
+1) Donation
 ```  private String id;  // donationId or token
      private long userId; // userId who generated the donation
      private String roomId; // roomId in which the donation is valid
@@ -64,13 +64,13 @@ Donation
      private Instant created;  // created date of the Donation
 ```
 
-Dividend
+2) Dividend
 ```
     long amount; //distributed amount from Donation
     long doneeUserId;  // userId who occupies the dividend, otherwise zero(0)
 ```
 
-Account
+3) Account
 ```
     Long userId; //userid who owns the account
     long balance = 0; // the account balance
