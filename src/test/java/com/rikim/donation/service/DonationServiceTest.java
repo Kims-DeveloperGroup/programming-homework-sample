@@ -45,8 +45,7 @@ public class DonationServiceTest {
         String roomId = "x-room-id-1";
         long amountToDonate = 100;
         int dividendCount = 5;
-        Account account = new Account(userId, 1000);
-        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
+        doNothing().when(accountService).withdraw(userId, amountToDonate);
 
         // When
         Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
@@ -62,8 +61,7 @@ public class DonationServiceTest {
         String roomId = "x-room-id-1";
         long amountToDonate = 100;
         int dividendCount = 5;
-        Account account = new Account(userId, 1000);
-        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
+        doNothing().when(accountService).withdraw(userId, amountToDonate);
 
         // When
         Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
@@ -79,8 +77,7 @@ public class DonationServiceTest {
         String roomId = "x-room-id-1";
         long amountToDonate = 100;
         int dividendCount = 5;
-        Account account = new Account(userId, 1000);
-        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
+        doNothing().when(accountService).withdraw(userId, amountToDonate);
 
         // When
         Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
@@ -98,7 +95,7 @@ public class DonationServiceTest {
         long amountToDonate = 100;
         int dividendCount = 5;
         Account account = new Account(userId, 1000);
-        when(accountService.withdraw(userId, amountToDonate)).thenReturn(account);
+        doNothing().when(accountService).withdraw(userId, amountToDonate);
         // When
         Donation generated = donationService.generateDonation(userId, roomId, amountToDonate, dividendCount);
 

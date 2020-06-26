@@ -9,20 +9,29 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AccountService {
     private AccountRepository accountRepository;
+    private long WELCOME_GIFT_BALANCE = 10000L;
 
     public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
-    public Account withdraw(long userId, final long amount) {
-        Account account = accountRepository.updateBalance(userId, amount);
-        if (account.getBalance() > 0) {
-            return accountRepository.updateBalance(userId, amount);
+    public void withdraw(long userId, final long amount) {
+        Account account = accountRepository.find(userId);
+
+        if(account == null) {
+            account = new Account(userId , WELCOME_GIFT_BALANCE);
+            accountRepository.insert(account);
         }
-        return account;
+        accountRepository.updateBalance(userId, - amount);
     }
 
-    public Account deposit(long userId, final long amount) {
-        return null;
+    public void deposit(long userId, final long amount) {
+        Account account = accountRepository.find(userId);
+
+        if(account == null) {
+            account = new Account(userId , WELCOME_GIFT_BALANCE);
+            accountRepository.insert(account);
+        }
+        accountRepository.updateBalance(userId, amount);
     }
 }
