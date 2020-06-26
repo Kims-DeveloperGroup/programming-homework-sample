@@ -70,16 +70,6 @@ public class Donation {
     }
 
     private void generateId() {
-        Random random = new Random();
-        StringBuilder idBuilder = new StringBuilder();
-        while (idBuilder.length() < 3) {
-            int asciiCode = random.nextInt(123);
-            if (asciiCode < 48) {
-                continue;
-            }
-            char ch = (char) asciiCode;
-            idBuilder.append(ch);
-        }
-        this.id = UUID.randomUUID().toString().substring(3);
+        this.id = UUID.randomUUID().toString().substring(0, 3);
     }
 }
