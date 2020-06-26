@@ -23,7 +23,7 @@ public class MongoDonationRepository implements DonationRepository {
 
     @Override
     public Donation findDonation(String donationId, String roomId) {
-        return mongoTemplate.findOne(Query.query(new Criteria("id").is(donationId)), Donation.class);
+        return mongoTemplate.findOne(Query.query(new Criteria("id").is(donationId).and("roomId").is(roomId)), Donation.class);
     }
 
     @Override
@@ -40,8 +40,11 @@ public class MongoDonationRepository implements DonationRepository {
                         )
                 );
         Donation donation = mongoTemplate.findOne(grantedForGivenDoneeId, Donation.class);
+        if (donation == null) {
+            return null;
+        }
         return donation.getDividends().stream()
-                .filter(dividend -> dividend.getDoneeUserId() == doneeId).findFirst().get();
+                .filter(dividend -> dividend.getDoneeUserId() == doneeId).findFirst().orElse(null);
     }
 
     @Override

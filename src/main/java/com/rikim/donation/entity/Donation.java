@@ -2,6 +2,7 @@ package com.rikim.donation.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
@@ -9,19 +10,20 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Data
 public class Donation {
-    private final int validMinutesForGrant = 10;
-    private final int validDaysForView = 7;
+    private static final int validMinutesForGrant = 10;
+    private static final int validDaysForView = 7;
     @Id
     @Indexed(unique = true)
-    String id;
-    final long userId;
-    final String roomId;
-    final long amount;
-    final List<Dividend> dividends;
-    Instant created;
+    private String id;
+    private long userId;
+    private String roomId;
+    private long amount;
+    private List<Dividend> dividends;
+    private Instant created;
 
     public Donation(long userId, String roomId, long amount, int dividendCount) {
         this.userId = userId;
@@ -30,6 +32,16 @@ public class Donation {
         generateId();
         dividends = distributeDividends(dividendCount);
         created = Instant.now();
+    }
+
+    @PersistenceConstructor
+    public Donation(String id, long userId, String roomId, long amount, List<Dividend> dividends, Instant created) {
+        this.id = id;
+        this.userId = userId;
+        this.roomId = roomId;
+        this.amount = amount;
+        this.dividends = dividends;
+        this.created = created;
     }
 
     public boolean isExpiredForGrant() {
@@ -58,13 +70,6 @@ public class Donation {
     }
 
     private void generateId() {
-        Random random = new Random();
-        StringBuilder idBuilder = new StringBuilder();
-        while (idBuilder.length() < 3) {
-            int asciiCode = random.nextInt(Character.MAX_VALUE);
-            char ch = (char) asciiCode;
-            idBuilder.append(ch);
-        }
-        this.id = idBuilder.toString();
+        this.id = UUID.randomUUID().toString().substring(0, 3);
     }
 }
