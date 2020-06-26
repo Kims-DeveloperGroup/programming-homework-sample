@@ -54,6 +54,7 @@ public class DonationService {
             throw new DonationUpdateException();
         }
         accountService.deposit(userId, dividendGrantedForUserId.getAmount());
+        log.info("Dividend({}) is granted to user {}", dividendGrantedForUserId);
         return dividendGrantedForUserId.getAmount();
     }
 
