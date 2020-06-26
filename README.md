@@ -11,6 +11,10 @@ To run independently
 - `make runDB` runs only database
 
 
+###Tests
+Test cases runs in Controller and Service layers. <br/>
+Repository layer is mocked. <br/>
+Run `mvn test`
 
 ##Architecture
 - Three layered - Controller, Service, Repository
