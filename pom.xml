@@ -13,6 +13,7 @@
 	<version>0.0.1</version>
 	<name>donation</name>
 	<description>Money donation service for friends</description>
+	<packaging>jar</packaging>
 
 	<properties>
 		<java.version>11</java.version>
@@ -40,12 +41,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
