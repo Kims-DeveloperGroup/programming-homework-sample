@@ -2,11 +2,13 @@ package com.rikim.donation.service;
 
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
+import com.rikim.donation.exception.DonationGrantConditionException;
 import com.rikim.donation.exception.DonationUpdateException;
-import com.rikim.donation.exception.InvalidDonationGrantException;
 import com.rikim.donation.repository.DonationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import static com.rikim.donation.exception.DonationGrantConditionExceptionType.*;
 
 @Service
 @Slf4j
@@ -25,23 +27,23 @@ public class DonationService {
         return donationRepository.insertDonation(donation);
     }
 
-    public long grantDividend(String donationId, long userId, String roomId) throws InvalidDonationGrantException, DonationUpdateException {
+    public long grantDividend(String donationId, long userId, String roomId) throws DonationGrantConditionException, DonationUpdateException {
         Donation donation = donationRepository.findDonation(donationId, roomId);
         if (donation == null) {
             log.error("Donation({}) does not exist in the room({})", donationId, roomId);
-            throw new InvalidDonationGrantException("NoDonationInTheRoom");
+            throw new DonationGrantConditionException(NoDonationInTheRoom);
         } else if (donation.isExpired()) {
           log.warn("Donation {} is expired", donationId);
-          throw new InvalidDonationGrantException("DonationExpired");
+          throw new DonationGrantConditionException(DonationExpired);
         } else if (donation.getUserId() == userId) {
             log.warn("Users are not allowed to access their own donations.");
-            throw new InvalidDonationGrantException("UserOwnDonationNotAllowed");
+            throw new DonationGrantConditionException(UserOwnDonationNotAllowed);
         }
 
         Dividend grantedDividend = donationRepository.findDividend(donationId, userId);
         if (grantedDividend != null) {
             log.warn("{} already has taken {}", userId, donationId);
-            throw new InvalidDonationGrantException("DuplicateGrantNotAllowed");
+            throw new DonationGrantConditionException(DuplicateDonationGrantNotAllowed);
         }
 
         boolean isUpdated = donationRepository.updateDividendDoneeId(donationId, userId);

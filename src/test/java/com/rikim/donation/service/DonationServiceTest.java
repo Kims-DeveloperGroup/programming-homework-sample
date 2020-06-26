@@ -3,8 +3,8 @@ package com.rikim.donation.service;
 import com.rikim.donation.entity.Account;
 import com.rikim.donation.entity.Dividend;
 import com.rikim.donation.entity.Donation;
+import com.rikim.donation.exception.DonationGrantConditionException;
 import com.rikim.donation.exception.DonationUpdateException;
-import com.rikim.donation.exception.InvalidDonationGrantException;
 import com.rikim.donation.repository.DonationRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -127,7 +127,7 @@ public class DonationServiceTest {
         assertThat(actualDividendAmount).isEqualTo(expectedDividendAmount);
     }
 
-    @Test(expected = InvalidDonationGrantException.class)
+    @Test(expected = DonationGrantConditionException.class)
     public void grantDividend_whenGratingUserOwnDividend_thenExceptionShouldBeThrown() throws Exception {
         // Given
         String donationId = "donation-id";
@@ -144,7 +144,7 @@ public class DonationServiceTest {
         donationService.grantDividend(donationId, doneeId, roomId);
     }
 
-    @Test(expected = InvalidDonationGrantException.class)
+    @Test(expected = DonationGrantConditionException.class)
     public void grantDividend_whenUserHasAlreadyTakenTheDonation_thenExceptionShouldBeThrown() throws Exception {
         // Given
         boolean hasTakenDonation = true;
@@ -182,7 +182,7 @@ public class DonationServiceTest {
         // Then
     }
 
-    @Test(expected = InvalidDonationGrantException.class)
+    @Test(expected = DonationGrantConditionException.class)
     public void grantDividend_whenDonationIsExpired_thenExceptionThrown() throws Exception {
         // Given
         String donationId = "donation-id";
