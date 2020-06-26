@@ -12,7 +12,8 @@ import java.util.Random;
 
 @Data
 public class Donation {
-    private final int validTimeDuration = 10;
+    private final int validMinutesForGrant = 10;
+    private final int validDaysForView = 7;
     @Id
     @Indexed(unique = true)
     String id;
@@ -31,8 +32,12 @@ public class Donation {
         created = Instant.now();
     }
 
-    public boolean isExpired() {
-        return created.plus(validTimeDuration, ChronoUnit.MINUTES).isBefore(Instant.now());
+    public boolean isExpiredForGrant() {
+        return created.plus(validMinutesForGrant, ChronoUnit.MINUTES).isBefore(Instant.now());
+    }
+
+    public boolean isExpiredForView() {
+        return created.plus(validDaysForView, ChronoUnit.DAYS).isBefore(Instant.now());
     }
 
     private List<Dividend> distributeDividends(int dividendCount) {
