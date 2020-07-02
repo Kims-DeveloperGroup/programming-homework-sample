@@ -41,7 +41,7 @@ DonationService is in charge of managing donations
 <br/>
 ##### 2) AccountService
 AccountService is in charge of managing user accounts <br/>
-######NOTE: AccountService generates an account when request users do not owns accounts with a gift $10000
+###### NOTE: AccountService generates an account when request users do not owns accounts with a gift $10000
 <br/>
 <br/>
 
