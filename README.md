@@ -1,4 +1,5 @@
-# Money donation application
+# Programming homework sample application
+This repository was used as a homework and submitted before an interview
 
 ## Runbook
 - prerequisite (java 11, maven, docker installation)
